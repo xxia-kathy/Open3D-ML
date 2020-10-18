@@ -174,6 +174,7 @@ class AHATSplit():
         points[:, 1] = data['y']
         points[:, 2] = data['z']
 
+        print(self.dataset.label_to_idx)
         if (self.split != 'test'):
             labels = np.array([self.dataset.label_to_idx[l] for l in labels_raw], dtype=np.int32).reshape((-1,))
         else:
