@@ -167,13 +167,14 @@ class AHATSplit():
         pc_path = self.path_list[idx]
         log.debug("get_data called {}".format(pc_path))
         data = PlyData.read(pc_path)['vertex']
-        labels_raw = pd.read_csv(self.labels_path_list[idx], header=None, delim_whitespace=True)
+        labels_raw = pd.read_csv(self.labels_path_list[idx], header=None, delim_whitespace=True).values
 
         points = np.zeros((data['x'].shape[0], 3), dtype=np.float32)
         points[:, 0] = data['x']
         points[:, 1] = data['y']
         points[:, 2] = data['z']
 
+        print(labels_raw)
         if (self.split != 'test'):
             labels = np.array([self.dataset.label_to_idx[l] for l in labels_raw], dtype=np.int32).reshape((-1,))
         else:
