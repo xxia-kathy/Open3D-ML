@@ -62,6 +62,7 @@ class AHAT(BaseDataset):
         self.ignored_labels = np.array([0])
 
         train_path = cfg.dataset_path + "/train/"
+        print(cfg.dataset_path)
         self.train_files = glob.glob(train_path + "/*.ply")
         self.train_label_files = glob.glob(train_path + "*.txt")
         self.val_files = [
