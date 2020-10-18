@@ -65,12 +65,12 @@ class AHAT(BaseDataset):
         train_path = cfg.dataset_path + "/train/"
         self.train_files = glob.glob(train_path + "/*.ply")
         self.train_label_files = glob.glob(train_path + "*.txt")
-        self.val_files = [
-            f for f in self.train_files if Path(f).name in cfg.val_files
-        ]
-        self.val_label_files = [
-            f for f in self.train_label_files if Path(f).name in cfg.val_label_files
-        ]
+        # self.val_files = [
+        #     f for f in self.train_files if Path(f).name in cfg.val_files
+        # ]
+        # self.val_label_files = [
+        #     f for f in self.train_label_files if Path(f).name in cfg.val_label_files
+        # ]
         self.train_files = [
             f for f in self.train_files if f not in self.val_files
         ]
