@@ -1,0 +1,8 @@
+name: AHAT
+dataset_path: /home/kathy/mrlab/dataset/AHAT/
+cache_dir: ./logs/cache
+ignored_label_inds:
+test_result_folder: ./test
+val_files:
+val_label_files:
+use_cache: False
