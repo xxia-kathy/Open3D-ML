@@ -32,8 +32,8 @@ class AHAT(BaseDataset):
                  use_cache=False,
                  num_points=65536,
                  test_result_folder='./test',
-                 val_files=['AHAT_val.ply'],
-                 val_label_files=['AHAT_val_labels.ply'],
+                 val_files=[],
+                 val_label_files=[],
                  **kwargs):
         """
         Initialize
@@ -53,13 +53,16 @@ class AHAT(BaseDataset):
                          **kwargs)
 
         cfg = self.cfg
-        print(cfg.val_files)
+        print(cfg)
 
         self.label_to_names = self.get_label_to_names()
 
         self.num_classes = len(self.label_to_names)
-        self.label_values = np.sort([k for k, v in self.label_to_names.items()])
-        self.label_to_idx = {l: i for i, l in enumerate(self.label_values)}
+        self.label_keys = np.sort([k for k, v in self.label_to_names.items()])
+        self.label_values = np.sort([v for k, v in self.label_to_names.items()])
+
+        self.label_to_idx = {l: i for i, l in enumerate(self.label_keys)}
+        self.label_string_to_int = {l: i for i, l in enumerate(self.label_values)}
         self.ignored_labels = np.array([0])
 
         train_path = cfg.dataset_path + "/train/"
@@ -68,15 +71,15 @@ class AHAT(BaseDataset):
         self.val_files = [
             f for f in self.train_files if Path(f).name in cfg.val_files
         ]
-        # self.val_label_files = [
-        #     f for f in self.train_label_files if Path(f).name in cfg.val_label_files
-        # ]
+        self.val_label_files = [
+            f for f in self.train_label_files if Path(f).name in cfg.val_label_files
+        ]
         self.train_files = [
             f for f in self.train_files if f not in self.val_files
         ]
-        # self.train_label_files = [
-        #     f for f in self.train_label_files if f not in self.val_label_files
-        # ]
+        self.train_label_files = [
+            f for f in self.train_label_files if f not in self.val_label_files
+        ]
 
 
         test_path = cfg.dataset_path + "/test/"
@@ -176,7 +179,7 @@ class AHATSplit():
 
         print(self.dataset.label_to_idx)
         if (self.split != 'test'):
-            labels = np.array([self.dataset.label_to_idx[l] for l in labels_raw], dtype=np.int32).reshape((-1,))
+            labels = np.array([self.dataset.label_string_to_int[l] for l in labels_raw], dtype=np.int32).reshape((-1,))
         else:
             labels = np.zeros((points.shape[0],), dtype=np.int32)
 
