@@ -30,7 +30,7 @@ class AHAT(BaseDataset):
                  name='AHAT',
                  cache_dir='./logs/cache',
                  use_cache=False,
-                 num_points=65536,
+                 num_points=67575,
                  test_result_folder='./test',
                  val_files=[],
                  val_label_files=[],
@@ -50,10 +50,10 @@ class AHAT(BaseDataset):
                          num_points=num_points,
                          test_result_folder=test_result_folder,
                          val_files=val_files,
+                         val_label_files=val_label_files,
                          **kwargs)
 
         cfg = self.cfg
-        print(cfg)
 
         self.label_to_names = self.get_label_to_names()
 
@@ -63,7 +63,7 @@ class AHAT(BaseDataset):
 
         self.label_to_idx = {l: i for i, l in enumerate(self.label_keys)}
         self.label_string_to_int = {l: i for i, l in enumerate(self.label_values)}
-        self.ignored_labels = np.array([0])
+        self.ignored_labels = np.array([])
 
         train_path = cfg.dataset_path + "/train/"
         self.train_files = glob.glob(train_path + "/*.ply")
@@ -73,15 +73,16 @@ class AHAT(BaseDataset):
         ]
         self.val_label_files = []
 
-        # self.val_label_files = [
-        #     f for f in self.train_label_files if Path(f).name in cfg.val_label_files
-        # ]
+        if (cfg.val_label_files is not None):
+            self.val_label_files = [
+                f for f in self.train_label_files if Path(f).name in cfg.val_label_files
+            ]
         self.train_files = [
             f for f in self.train_files if f not in self.val_files
         ]
-        # self.train_label_files = [
-        #     f for f in self.train_label_files if f not in self.val_label_files
-        # ]
+        self.train_label_files = [
+            f for f in self.train_label_files if f not in self.val_label_files
+        ]
 
 
         test_path = cfg.dataset_path + "/test/"
@@ -172,20 +173,24 @@ class AHATSplit():
         pc_path = self.path_list[idx]
         log.debug("get_data called {}".format(pc_path))
         data = PlyData.read(pc_path)['vertex']
-        labels_raw = pd.read_csv(self.labels_path_list[idx], header=None, delim_whitespace=True).values[0]
+        labels_raw = pd.read_csv(self.labels_path_list[idx], header=None, delim_whitespace=True, error_bad_lines=True).values[0]
 
         points = np.zeros((data['x'].shape[0], 3), dtype=np.float32)
         points[:, 0] = data['x']
         points[:, 1] = data['y']
         points[:, 2] = data['z']
 
-        print(self.dataset.label_to_idx)
         if (self.split != 'test'):
-            labels = np.array([self.dataset.label_string_to_int[l] for l in labels_raw], dtype=np.int32).reshape((-1,))
+            labels = np.array([self.dataset.label_string_to_int[l] for l in labels_raw], dtype=np.int32)
         else:
             labels = np.zeros((points.shape[0],), dtype=np.int32)
+       
+        feat = np.zeros((data['x'].shape[0], 3), dtype=np.float32)
+        feat[:, 0] = data['red']
+        feat[:, 1] = data['green']
+        feat[:, 2] = data['blue']
 
-        data = {'point': points, 'feat': None, 'label': labels}
+        data = {'point': points, 'feat': feat, 'label': labels}
 
         return data
 

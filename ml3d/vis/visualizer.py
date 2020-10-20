@@ -998,6 +998,7 @@ class Visualizer:
             self._3d.scene.add_geometry(name, tcloud, material)
 
         node = self._name2treenode[name]
+     
         if node is not None:
             self._3d.scene.show_geometry(name, node.checkbox.checked)
 
